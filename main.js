@@ -13,6 +13,19 @@ let backgroundImage, angelImage, bulletImage, devilImage, gameOverImage;
 let angelX = canvas.width / 2 - 32;
 let angelY = canvas.height - 64;
 
+let bulletList=[] //총알들을 저장하는 list
+
+function Bullet(){
+  this.x=0
+  this.y=0
+  this.init=function(){
+    this.x =angelX 
+    this.y= angelY
+
+    bulletList.push(this)
+  }
+}
+
 function loadImage() {
   backgroundImage = new Image();
   backgroundImage.src = "images/background.jpg";
@@ -33,33 +46,48 @@ function loadImage() {
 let keysDown = {};
 function setupKeyboardListener() {
   document.addEventListener("keydown", function (event) {
+    //눌렀을때
     keysDown[event.keyCode] = true;
   });
   document.addEventListener("keyup", function (event) {
+    //뗏을때
     delete keysDown[event.keyCode];
+
+    if (event.keyCode == 32)
+      //32는 스페이스바
+      createBullet();
   });
+}
+
+const createBullet=()=>{
+  console.log("총알 생성")
+  let b= new Bullet()
+  b.init()
+  console.log('총알',bulletList)
 }
 
 function update() {
   if (39 in keysDown) {
     angelX += 3;
-
   }
-  if(37 in keysDown){
+  if (37 in keysDown) {
     angelX -= 3;
   }
-  if(angelX<=0){
-    angelX=0
+  if (angelX <= 0) {
+    angelX = 0;
   }
-  if(angelX>=canvas.width-64){
-    angelX=canvas.width-64
-
+  if (angelX >= canvas.width - 64) {
+    angelX = canvas.width - 64;
   }
 }
 
 function render() {
   ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
   ctx.drawImage(angelImage, angelX, angelY);
+  
+  for(let i =0; i<bulletList.length; i++){
+    ctx.drawImage(bulletImage,bulletList[i].x ,bulletList[i].y)
+  }
 }
 
 function main() {
@@ -71,3 +99,10 @@ function main() {
 loadImage();
 setupKeyboardListener();
 main();
+
+//총알만들기
+//1. 스페이스바를 누르면 총알 발사
+//2. 총알이 발사 = 총알의 y값이 -- , 총알의 x 값은 스페이스를 누른 순간의 x 좌표
+//3. 발사된 총알들은 배열에 저장
+//4. 총알들은 x,y좌표값이 있어야 한다.
+//5. 총알 배열을 가지고 render 한다 // 그려준다
