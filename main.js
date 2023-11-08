@@ -20,9 +20,12 @@ function Bullet(){
   this.y=0
   this.init=function(){
     this.x =angelX 
-    this.y= angelY
+    this.y= angelY - 20
 
     bulletList.push(this)
+  }
+  this.update = function(){
+    this.y -= 7
   }
 }
 
@@ -78,6 +81,11 @@ function update() {
   }
   if (angelX >= canvas.width - 64) {
     angelX = canvas.width - 64;
+  }
+
+  //총알의 y좌표 업데이트 하는 함수 호출
+  for(let i = 0; i<bulletList.length; i++){
+    bulletList[i].update()
   }
 }
 
