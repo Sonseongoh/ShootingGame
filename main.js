@@ -9,13 +9,15 @@ document.body.appendChild(canvas);
 
 let backgroundImage, angelImage, bulletImage, devilImage, gameOverImage;
 
+let gameOver= false //true 이면 게임 끝, devil이 바닥에 닿으면 true로 바꾼다 , main 함수를 중지시키는 방법
+
 //천사좌표
 let angelX = canvas.width / 2 - 32;
 let angelY = canvas.height - 64;
 
 let bulletList=[] //총알들을 저장하는 list
 
-function Bullet(){
+const Bullet=function() {
   this.x=0
   this.y=0
   this.init=function(){
@@ -26,6 +28,31 @@ function Bullet(){
   }
   this.update = function(){
     this.y -= 7
+  }
+}
+
+const generateRandomValue=(min,max)=>{
+  let randomNum=Math.random()*(max-min)+min
+  return randomNum
+}
+
+
+let devilList=[]
+
+const Devil=function(){
+  this.x=0
+  this.y=0
+  this.init=function(){
+    this.y=0  
+    this.x=generateRandomValue(0,canvas.width-64)
+    devilList.push(this)
+  }
+  this.update=function(){
+    this.y += 2
+    if(this.y>=canvas.height-64){
+      gameOver=true
+      
+    }
   }
 }
 
@@ -69,6 +96,13 @@ const createBullet=()=>{
   console.log('총알',bulletList)
 }
 
+const createDevil=()=>{
+  const interval =setInterval(function(){ //1초마다 적군생성
+    let d= new Devil()
+    d.init()  
+  },1000)    
+}
+
 function update() {
   if (39 in keysDown) {
     angelX += 3;
@@ -87,6 +121,10 @@ function update() {
   for(let i = 0; i<bulletList.length; i++){
     bulletList[i].update()
   }
+
+  for(let i=0; i<devilList.length; i++){
+    devilList[i].update()
+  }
 }
 
 function render() {
@@ -96,16 +134,25 @@ function render() {
   for(let i =0; i<bulletList.length; i++){
     ctx.drawImage(bulletImage,bulletList[i].x ,bulletList[i].y)
   }
+
+  for(let i=0; i<devilList.length; i++){
+    ctx.drawImage(devilImage,devilList[i].x ,devilList[i].y)
+  }
 }
 
 function main() {
+  if(gameOver===false){
   update(); //좌표값 업데이트하고
   render(); //그려주고
   requestAnimationFrame(main);
+  }else{
+    ctx.drawImage(gameOverImage,10,100,380,380)  //10,100 위치에 380,380 사이즈로 그려줌
+  }
 }
 
 loadImage();
 setupKeyboardListener();
+createDevil()
 main();
 
 //총알만들기
