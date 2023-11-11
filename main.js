@@ -10,6 +10,7 @@ document.body.appendChild(canvas);
 let backgroundImage, angelImage, bulletImage, devilImage, gameOverImage;
 
 let gameOver= false //true 이면 게임 끝, devil이 바닥에 닿으면 true로 바꾼다 , main 함수를 중지시키는 방법
+let score =0;
 
 //천사좌표
 let angelX = canvas.width / 2 - 32;
@@ -23,15 +24,25 @@ const Bullet=function() {
   this.init=function(){
     this.x =angelX 
     this.y= angelY - 20
-
+    this.alive = true;
     bulletList.push(this)
   }
   this.update = function(){
     this.y -= 7
   }
+  this.checkHit =function(){
+    for(let i =0 ; i<devilList.length; i++){
+    if(this.y <= devilList[i].y && this.x+32 >= devilList[i].x && this.x <= devilList[i].x +40) { //적군과 총알이 닿으면
+      //총알이 죽게됨 ,점수 획득
+      score ++;
+      this.alive =false
+      devilList.splice(i,1)
+    }
+    }
+  }
 }
 
-const generateRandomValue=(min,max)=>{
+function generateRandomValue(min,max){
   let randomNum=Math.random()*(max-min)+min
   return randomNum
 }
@@ -89,14 +100,14 @@ function setupKeyboardListener() {
   });
 }
 
-const createBullet=()=>{
+function createBullet(){
   console.log("총알 생성")
   let b= new Bullet()
   b.init()
   console.log('총알',bulletList)
 }
 
-const createDevil=()=>{
+function createDevil(){
   const interval =setInterval(function(){ //1초마다 적군생성
     let d= new Devil()
     d.init()  
@@ -119,7 +130,10 @@ function update() {
 
   //총알의 y좌표 업데이트 하는 함수 호출
   for(let i = 0; i<bulletList.length; i++){
-    bulletList[i].update()
+    if(bulletList[i].alive){
+      bulletList[i].checkHit()
+      bulletList[i].update()
+    }
   }
 
   for(let i=0; i<devilList.length; i++){
@@ -130,9 +144,13 @@ function update() {
 function render() {
   ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
   ctx.drawImage(angelImage, angelX, angelY);
-  
+  ctx.fillText(`Score:${score}`, 10, 20) //스코어 보여주기 ,10,20 위치
+  ctx.fillStyle="white" //스코어 색상
+  ctx.font ="20px Arial"
   for(let i =0; i<bulletList.length; i++){
-    ctx.drawImage(bulletImage,bulletList[i].x ,bulletList[i].y)
+    if(bulletList[i].alive){
+      ctx.drawImage(bulletImage,bulletList[i].x ,bulletList[i].y)
+    }
   }
 
   for(let i=0; i<devilList.length; i++){
@@ -161,3 +179,7 @@ main();
 //3. 발사된 총알들은 배열에 저장
 //4. 총알들은 x,y좌표값이 있어야 한다.
 //5. 총알 배열을 가지고 render 한다 // 그려준다
+
+
+
+//적군이 죽는다, 총알이 닫는다
